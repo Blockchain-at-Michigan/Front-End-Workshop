@@ -1,0 +1,24 @@
+#accounts-list {
+    border: 1px solid black;
+    margin-bottom: 2em;
+}
+
+#accounts-list td {
+    padding-right: 8px;
+}
+
+.target-account {
+    margin-bottom: 3px;
+}
+
+#create-address, .target-account input {
+    width: 50%;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+#squiggles-list .squiggle-value {
+    min-width: 40em;
+}
