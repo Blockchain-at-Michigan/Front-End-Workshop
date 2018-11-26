@@ -32,142 +32,10 @@ var selectedSquiggle;
 var useColor;
 var animated;
 
-var getXYIncrement = function(dir) {
-    var xyIncrement = new Object();
-    switch (dir) {
-        case 0: // Down-Right
-            xyIncrement.x = 1;
-            xyIncrement.y = -1;
-            break;
-        case 1:  // Right
-            xyIncrement.x = 1;
-            xyIncrement.y = 0;
-            break;
-        case 2:  // Up-Right
-            xyIncrement.x = 1;
-            xyIncrement.y = 1;
-            break;
-        case 3:  // Up
-            xyIncrement.x = 0;
-            xyIncrement.y = 1;
-            break;
-        case 4: // Up-Left
-            xyIncrement.x = -1;
-            xyIncrement.y = 1;
-            break;
-        case 5: // Left
-            xyIncrement.x = -1;
-            xyIncrement.y = 0;
-            break;
-        case 6: // Down-Left
-            xyIncrement.x = -1;
-            xyIncrement.y = -1;
-            break;
-        case 7: // Down
-            xyIncrement.x = 0;
-            xyIncrement.y = -1;
-            break;
-    }
-    return xyIncrement;
-}
-
-var renderSquiggle = async function(squiggleValue) {
-    // TODO: create your own rendering idea
-    var c = document.getElementById("myCanvas");
-    var ctx = c.getContext("2d");
-    var currX = (c.width / 2) | 0;
-    var currY = (c.height / 2) | 0;
-    var nextX, nextY;
-    if (!squiggleValue) {
-        return;
-    }
-    var moveList = [];
-    var range = new Object();
-    range.minX = currX;
-    range.minY = currY;
-    range.maxX = currX;
-    range.maxY = currY;
-    do {
-        var dir = squiggleValue.modulo(8);
-        squiggleValue = squiggleValue.dividedToIntegerBy(8);
-
-        var xyIncrement = getXYIncrement(dir.toNumber());
-        moveList.push(xyIncrement);
-        nextX = currX + xyIncrement.x;
-        nextY = currY + xyIncrement.y;
-
-        range.minX = (range.minX > nextX) ? nextX : range.minX;
-        range.minY = (range.minY > nextY) ? nextY : range.minY;
-        range.maxX = (range.maxX < nextX) ? nextX : range.maxX;
-        range.maxY = (range.maxY < nextY) ? nextY : range.maxY;
-
-        currX = nextX;
-        currY = nextY;
-    } while(squiggleValue > 8);
-
-    ctx.clearRect(0, 0, c.width, c.height);
-    var currX = (c.width / 2) | 0;
-    var currY = (c.height / 2) | 0;
-    var biggestChange = Math.max(range.maxX - range.minX, range.maxY - range.minY);
-    var increment = ((c.width / biggestChange) | 0) - 1;
-    var xChange = (currX - ((range.maxX + range.minX) / 2)) * increment;
-    var yChange = (currY - ((range.maxY + range.minY) / 2)) * increment;
-    for (var i = 0; i < moveList.length; ++i) {
-        ctx.beginPath();
-        ctx.moveTo(currX + xChange, currY + yChange);
-
-        nextX = currX + moveList[i].x * increment;
-        nextY = currY + moveList[i].y * increment;
-
-        ctx.lineTo(nextX + xChange, nextY + yChange);
-        currX = nextX;
-        currY = nextY;
-        if (useColor) {
-            red   = (Math.sin(0.0117647059*5*(i) + 0) * 127 + 128) | 0;
-            green = (Math.sin(0.0117647059*5*(i) + 2) * 127 + 128) | 0;
-            blue  = (Math.sin(0.0117647059*5*(i) + 4) * 127 + 128) | 0;
-            while (red.length < 2) { red = '0' + red; }
-            while (green.length < 2) { green = '0' + green; }
-            while (blue.length < 2) { blue = '0' + blue; }
-            var str = red.toString(16) + green.toString(16) + blue.toString(16);
-            ctx.strokeStyle="#" + str;
-        } else {
-            ctx.strokeStyle="#000000";
-        }
-        ctx.stroke();
-        if (animated) {
-            await sleepFor(20);
-        }
-    }
-};
-
-var sleepFor = function(millis) {
-    return new Promise(function(resolve, reject) {
-        setTimeout(function() {
-            resolve(true);
-        }, millis);
-    });
-}
-
-var padWithZeroes = function(number, length) {
-    var my_string = '' + number;
-    while (my_string.length < length) {
-        my_string = '0' + my_string;
-    }
-
-    return my_string;
-}
-
-var setOptions = function(contract, from, gasPrice, gas) {
-    contract.options.from = from;
-    contract.options.gasPrice = gasPrice;
-    contract.options.gas = gas;
-};
-
 var chooseSquiggle = function(index) {
     if (index >= 0) {
         selectedSquiggle = index;
-        renderSquiggle(squiggleValues[index].tag);
+        renderToken(squiggleValues[index].tag);
         squiggleIds.forEach(function(squiggleId, i) {
             squiggleId.style.fontWeight = index === i ? 'bold' : 'normal';
         });
@@ -175,7 +43,7 @@ var chooseSquiggle = function(index) {
             squiggleValue.style.fontWeight = index === i ? 'bold' : 'normal';
         });
     } else {
-        renderSquiggle(undefined);
+        renderToken(undefined);
     }
 };
 
@@ -190,7 +58,7 @@ var getSquiggleBalance = function(account) {
             }
         });
     });
-}
+};
 
 var getEthBalance = function(account) {
     return new Promise(function(resolve, reject) {
@@ -203,7 +71,7 @@ var getEthBalance = function(account) {
             }
         });
     });
-}
+};
 
 var updateAccounts = async function(selectLastSquiggle) {
     for (var i = 0; i < eth.accounts.length; ++i) {
@@ -292,7 +160,7 @@ var updateAccounts = async function(selectLastSquiggle) {
             console.log(err);
         }
     });
-}
+};
 
 // Account management functions
 var setDefaultAccountIndex = function(index) {
@@ -313,15 +181,17 @@ var setDefaultAccountIndex = function(index) {
         updateAccounts();
     }
     spanCurrAccountAddress.innerText = defaultAccount;
-}
+};
+
 var setAccountToAddress = function(address) {
     if (defaultAccount !== address) {
         setDefaultAccountIndex(web3.eth.accounts.indexOf(address));
     }
-}
+};
+
 var toggleDefaultAccountIndex = function() {
     setDefaultAccountIndex((defaultAccountIndex + 1) % web3.eth.accounts.length);
-}
+};
 
 // Contract function
 var loadSquiggleTokenContract = function(callback) {
@@ -382,7 +252,55 @@ var initializeUI = function() {
         rowDiv.appendChild(squiggles[i]);
         divAccountsList.appendChild(rowDiv);
     }
-}
+
+    // Button Click Functions
+    btnUpdate.addEventListener('click', function() {
+        updateAccounts();
+    });
+    btnToggle.addEventListener('click', function() {
+        toggleDefaultAccountIndex();
+    });
+    btnOwner.addEventListener('click', function() {
+        setAccountToAddress(squiggleContractOwner);
+    });
+    btnTransfer.addEventListener('click', function() {
+        var accountToTransferTo = accountToTransfer.value;
+        var idToTransfer = document.getElementById('transfer-id')
+        var id = idToTransfer.value;
+
+        squiggleToken.transfer(accountToTransferTo, id, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 967000}, function(err, res) {
+            if (!err) {
+                accountToTransfer.value = '';
+                idToTransfer.value = '';
+                updateAccounts();
+            } else {
+                console.log(err);
+            }
+        });
+    });
+    btnCreateSquiggle.addEventListener('click', function() {
+        squiggleToken.createRandomSquiggle(inputCreateAddress.value, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 257637}, function(err, res) {
+            if (!err) {
+                if (inputCreateAddress.value === defaultAccount) {
+                    updateAccounts(true);
+                } else {
+                    alert("Squiggle Created!");
+                    updateAccounts(false);
+                }
+            } else {
+                console.log(err);
+            }
+        });
+    });
+    coloredSquiggleCheckbox.addEventListener('click', function() {
+        useColor = coloredSquiggleCheckbox.checked;
+        chooseSquiggle(selectedSquiggle);
+    });
+    animatedSquiggleCheckbox.addEventListener('click', function() {
+        animated = animatedSquiggleCheckbox.checked;
+        chooseSquiggle(selectedSquiggle);
+    });
+};
 
 // Initialize and onload functions
 var initialize = function(provider) {
@@ -403,7 +321,7 @@ var initialize = function(provider) {
         }
         updateAccounts();
     });
-}
+};
 
 window.addEventListener('load', async () => {
     // Modern dapp browsers...
@@ -429,57 +347,4 @@ window.addEventListener('load', async () => {
         currAccountDiv.style.display = 'block';
         initialize(new Web3.providers.HttpProvider('http://localhost:7545'));
     }
-});
-
-// Button Click Functions
-btnUpdate.addEventListener('click', function() {
-    updateAccounts();
-});
-
-btnToggle.addEventListener('click', function() {
-    toggleDefaultAccountIndex();
-});
-btnOwner.addEventListener('click', function() {
-    setAccountToAddress(squiggleContractOwner);
-});
-
-btnTransfer.addEventListener('click', function() {
-    var accountToTransferTo = accountToTransfer.value;
-    var idToTransfer = document.getElementById('transfer-id')
-    var id = idToTransfer.value;
-
-    squiggleToken.transfer(accountToTransferTo, id, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 967000}, function(err, res) {
-        if (!err) {
-            accountToTransfer.value = '';
-            idToTransfer.value = '';
-            updateAccounts();
-        } else {
-            console.log(err);
-        }
-    });
-});
-
-btnCreateSquiggle.addEventListener('click', function() {
-    squiggleToken.createRandomSquiggle(inputCreateAddress.value, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 257637}, function(err, res) {
-        if (!err) {
-            if (inputCreateAddress.value === defaultAccount) {
-                updateAccounts(true);
-            } else {
-                alert("Squiggle Created!");
-                updateAccounts(false);
-            }
-        } else {
-            console.log(err);
-        }
-    });
-});
-
-coloredSquiggleCheckbox.addEventListener('click', function() {
-    useColor = coloredSquiggleCheckbox.checked;
-    chooseSquiggle(selectedSquiggle);
-});
-
-animatedSquiggleCheckbox.addEventListener('click', function() {
-    animated = animatedSquiggleCheckbox.checked;
-    chooseSquiggle(selectedSquiggle);
 });
