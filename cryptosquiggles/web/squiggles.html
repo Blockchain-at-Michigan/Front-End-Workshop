@@ -5,14 +5,13 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>CryptoSquiggles</title>
-    <script src='../node_modules/bignumber/bignumber.min.js'></script>
-    <script src="../node_modules/web3/dist/web3.min.js"></script>
+    <script src='./node_modules/bignumber/bignumber.min.js'></script>
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
     <link rel="stylesheet" href="./squiggles.css"></link>
 </head>
 
 <body>
     Squiggle Token
-    <button id="btnUpdate" type="text">Update Balances</button>
     <table id="accounts-list">
         <tr>
             <th>Account Address</th>
@@ -20,42 +19,44 @@
             <th>SQGL Balance</th>
         </tr>
     </table>
+    <button id="btnUpdate" type="text">Update Balances</button>
 
-    <div>
+    <div id="curr-account-div" class="current-account">
         <span>
             Current Account:
         </span>
         <span id="curr-account"></span>
-        <button id="btnToggle">Toggle</button>
-        <button id="btnOwner">Owner</button>
+        <button id="btnToggle">Toggle Account</button>
+        <button id="btnOwner">Select Owner</button>
     </div>
     <div class="target-amount">
-        <label for="transfer-id">Squiggle ID to Transfer:</label>
-        <input id="transfer-id"></input>
         <div class="target-account">
             <label for="transfer-account">Target Account:</label>
             <input id="transfer-account"></input>
         </div>
+        <label for="transfer-id">Squiggle ID to Transfer:</label>
+        <input id="transfer-id"></input>
         <button id="btnTransfer">Transfer</button>
     </div>
-
     <div id="create-info" class="create-info">
         <label for="create-address">Create Squiggle For:</label>
         <input id="create-address"></input>
         <br>
         <button id="btnCreateSquiggle">Create Squiggle</button>
     </div>
-
     <table id="squiggles-list">
         <tr>
             <th>Squiggle Id</th>
             <th>Squiggle Value</th>
         </tr>
     </table>
-
     <div id="squiggle-rendering">
         <div>Squiggle Rendering:</div>
         <canvas id="myCanvas" width="300" height="300" style="border:1px solid #d3d3d3;"></canvas>
+        <div>
+            <label for="colored-squiggle">Colored:</label><input id="colored-squiggle" type="checkbox"/>
+            <label for="animated-squiggle">Animated:</label><input id="animated-squiggle" type="checkbox"/>
+        </div>
     </div>
     <script src="./squiggles.js"></script>
 </body>

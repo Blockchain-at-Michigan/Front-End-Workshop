@@ -1,10 +1,17 @@
 #accounts-list {
     border: 1px solid black;
-    margin-bottom: 2em;
 }
 
 #accounts-list td {
     padding-right: 8px;
+}
+
+#btnUpdate {
+    margin-bottom: 2em;
+}
+
+.current-account, .target-amount, .create-info {
+    margin-bottom: 1em;
 }
 
 .target-account {
@@ -17,6 +24,10 @@
 
 .clickable {
     cursor: pointer;
+}
+
+#squiggle-rendering {
+    margin-top: 1em;
 }
 
 #squiggles-list .squiggle-value {
