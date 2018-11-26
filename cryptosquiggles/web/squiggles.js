@@ -136,7 +136,7 @@ var renderSquiggle = async function(squiggleValue) {
         }
         ctx.stroke();
         if (animated) {
-            await sleepFor(10);
+            await sleepFor(20);
         }
     }
 };
