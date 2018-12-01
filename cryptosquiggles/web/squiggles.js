@@ -18,8 +18,6 @@ var btnOwner = document.getElementById('btnOwner');
 var btnTransfer = document.getElementById('btnTransfer');
 var btnCreateSquiggle = document.getElementById('btnCreateSquiggle');
 var accountToTransfer = document.getElementById('transfer-account');
-var coloredSquiggleCheckbox = document.getElementById('colored-squiggle');
-var animatedSquiggleCheckbox = document.getElementById('animated-squiggle');
 var currAccountDiv = document.getElementById('curr-account-div');
 
 var squiggleTokenContract;
@@ -29,8 +27,6 @@ var defaultAccountIndex;
 var defaultAccount;
 var contractLoaded;
 var selectedSquiggle;
-var useColor;
-var animated;
 
 var chooseSquiggle = function(index) {
     if (index >= 0) {
@@ -195,9 +191,8 @@ var toggleDefaultAccountIndex = function() {
 
 // Contract function
 var loadSquiggleTokenContract = function(callback) {
-    var squiggleTokenContract = web3.eth.contract([{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"approve","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"}],"name":"createRandomSquiggle","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"renounceOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"previousOwner","type":"address"},{"indexed":true,"name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_approved","type":"address"},{"indexed":false,"name":"_tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"getSquiggle","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"indexOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isOwner","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"tokensOfOwner","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]);
-    // TODO: update this with the correct squiggle token address
-    squiggleToken = squiggleTokenContract.at('0x733ef43c99d8369c8b0ff2f42b3928ac1162f035');
+    var squiggleTokenContract = web3.eth.contract(getERC721Abi());
+    squiggleToken = squiggleTokenContract.at(getERC721Address());
     squiggleToken.owner(function(err, res) {
         squiggleContractOwner = res;
         setAccountToAddress(squiggleContractOwner);
@@ -208,14 +203,14 @@ var loadSquiggleTokenContract = function(callback) {
 
 var initializeUI = function() {
     spanCurrAccountAddress.innerText = defaultAccount;
-    divAccountsList.innerText = "";
+    divAccountsList.innerText = '';
     var headerRowDiv = document.createElement('tr');
     var headerDiv1 = document.createElement('th');
-    headerDiv1.innerText = "Account Address";
+    headerDiv1.innerText = 'Account Address';
     var headerDiv2 = document.createElement('th');
-    headerDiv2.innerText = "ETH Balance";
+    headerDiv2.innerText = 'ETH Balance';
     var headerDiv3 = document.createElement('th');
-    headerDiv3.innerText = "SQGL Balance";
+    headerDiv3.innerText = 'SQGL Balance';
     headerRowDiv.appendChild(headerDiv1);
     headerRowDiv.appendChild(headerDiv2);
     headerRowDiv.appendChild(headerDiv3);
@@ -252,6 +247,25 @@ var initializeUI = function() {
         rowDiv.appendChild(squiggles[i]);
         divAccountsList.appendChild(rowDiv);
     }
+};
+
+// Initialize and onload functions
+var initialize = function(provider) {
+    web3 = new Web3(provider);
+    eth = web3.eth;
+    squiggleIds = [];
+    squiggleValues = [];
+    accs = [];
+    ethBalance = [];
+    squiggles = [];
+    contractLoaded = false;
+    setDefaultAccountIndex(0);
+    loadSquiggleTokenContract(function(e, contract) {
+        if (typeof contract.address !== 'undefined') {
+             console.log(`Contract found! address: ${contract.address} transactionHash: ${contract.transactionHash}`);
+        }
+        updateAccounts();
+    });
 
     // Button Click Functions
     btnUpdate.addEventListener('click', function() {
@@ -284,42 +298,13 @@ var initializeUI = function() {
                 if (inputCreateAddress.value === defaultAccount) {
                     updateAccounts(true);
                 } else {
-                    alert("Squiggle Created!");
+                    alert('Squiggle Created!');
                     updateAccounts(false);
                 }
             } else {
                 console.log(err);
             }
         });
-    });
-    coloredSquiggleCheckbox.addEventListener('click', function() {
-        useColor = coloredSquiggleCheckbox.checked;
-        chooseSquiggle(selectedSquiggle);
-    });
-    animatedSquiggleCheckbox.addEventListener('click', function() {
-        animated = animatedSquiggleCheckbox.checked;
-        chooseSquiggle(selectedSquiggle);
-    });
-};
-
-// Initialize and onload functions
-var initialize = function(provider) {
-    web3 = new Web3(provider);
-    eth = web3.eth;
-    squiggleIds = [];
-    squiggleValues = [];
-    accs = [];
-    ethBalance = [];
-    squiggles = [];
-    contractLoaded = false;
-    useColor = false;
-    animated = false;
-    setDefaultAccountIndex(0);
-    loadSquiggleTokenContract(function(e, contract) {
-        if (typeof contract.address !== 'undefined') {
-             console.log(`Contract found! address: ${contract.address} transactionHash: ${contract.transactionHash}`);
-        }
-        updateAccounts();
     });
 };
 
@@ -345,6 +330,6 @@ window.addEventListener('load', async () => {
     // Non-dapp browsers...
     else {
         currAccountDiv.style.display = 'block';
-        initialize(new Web3.providers.HttpProvider('http://localhost:7545'));
+        initialize(new Web3.providers.HttpProvider(getGanacheAddress()));
     }
 });

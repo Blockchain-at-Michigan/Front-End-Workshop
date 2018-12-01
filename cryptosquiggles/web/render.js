@@ -1,3 +1,7 @@
+// Note in case there are asynchronous calls in render function
+// to make sure only one rendering happens at a time
+var renderId = 0;
+
 // TODO: replace this function to create your own rendering idea
 var renderToken = async function(tokenValue) {
     var c = document.getElementById("myCanvas");
@@ -39,6 +43,8 @@ var renderToken = async function(tokenValue) {
     var increment = ((c.width / biggestChange) | 0) - 1;
     var xChange = (currX - ((range.maxX + range.minX) / 2)) * increment;
     var yChange = (currY - ((range.maxY + range.minY) / 2)) * increment;
+    renderId++;
+    var currRender = renderId;
     for (var i = 0; i < moveList.length; ++i) {
         ctx.beginPath();
         ctx.moveTo(currX + xChange, currY + yChange);
@@ -49,25 +55,29 @@ var renderToken = async function(tokenValue) {
         ctx.lineTo(nextX + xChange, nextY + yChange);
         currX = nextX;
         currY = nextY;
-        if (useColor) {
-            red   = (Math.sin(0.0117647059*5*(i) + 0) * 127 + 128) | 0;
-            green = (Math.sin(0.0117647059*5*(i) + 2) * 127 + 128) | 0;
-            blue  = (Math.sin(0.0117647059*5*(i) + 4) * 127 + 128) | 0;
-            while (red.length < 2) { red = '0' + red; }
-            while (green.length < 2) { green = '0' + green; }
-            while (blue.length < 2) { blue = '0' + blue; }
-            var str = red.toString(16) + green.toString(16) + blue.toString(16);
-            ctx.strokeStyle="#" + str;
-        } else {
-            ctx.strokeStyle="#000000";
-        }
+
+        red   = (Math.sin(0.0117647059*5*(i) + 0) * 127 + 128) | 0;
+        green = (Math.sin(0.0117647059*5*(i) + 2) * 127 + 128) | 0;
+        blue  = (Math.sin(0.0117647059*5*(i) + 4) * 127 + 128) | 0;
+        while (red.length < 2) { red = '0' + red; }
+        while (green.length < 2) { green = '0' + green; }
+        while (blue.length < 2) { blue = '0' + blue; }
+        var str = red.toString(16) + green.toString(16) + blue.toString(16);
+        ctx.strokeStyle="#" + str;
+
         ctx.stroke();
-        if (animated) {
-            await sleepFor(20);
+
+        // used to animate the drawing
+        await sleepFor(15);
+
+        // make sure we're still the active rendering
+        if (currRender != renderId) {
+            break;
         }
     }
 };
 
+// helper functions specifically for squiggle rendering
 var getXYIncrement = function(dir) {
     var xyIncrement = new Object();
     switch (dir) {
@@ -107,6 +117,7 @@ var getXYIncrement = function(dir) {
     return xyIncrement;
 };
 
+// utility for sleeping for a certain time in an async function
 var sleepFor = function(millis) {
     return new Promise(function(resolve, reject) {
         setTimeout(function() {
