@@ -5,6 +5,7 @@ var squiggleValues;
 var accs;
 var ethBalance;
 var squiggles;
+var decimalsFactor = 1000000000000000000;
 
 var spanCurrAccountAddress = document.getElementById('curr-account');
 var divAccountsList = document.getElementById('accounts-list');
@@ -17,7 +18,6 @@ var btnToggle = document.getElementById('btnToggle');
 var btnOwner = document.getElementById('btnOwner');
 var btnTransfer = document.getElementById('btnTransfer');
 var btnCreateSquiggle = document.getElementById('btnCreateSquiggle');
-var accountToTransfer = document.getElementById('transfer-account');
 var currAccountDiv = document.getElementById('curr-account-div');
 
 var squiggleTokenContract;
@@ -94,7 +94,8 @@ var updateAccounts = async function(selectLastSquiggle) {
     } else {
         divCreateInfo.style.display = 'none';
     }
-
+    squiggleIds = [];
+    squiggleValues = [];
     divSquigglesList.innerHTML = '';
     squiggleToken.tokensOfOwner(defaultAccount, function(err, res) {
         if (!err) {
@@ -202,6 +203,9 @@ var loadSquiggleTokenContract = function(callback) {
 };
 
 var initializeUI = function() {
+    accs = [];
+    ethBalance = [];
+    squiggles = [];
     spanCurrAccountAddress.innerText = defaultAccount;
     divAccountsList.innerText = '';
     var headerRowDiv = document.createElement('tr');
@@ -253,11 +257,6 @@ var initializeUI = function() {
 var initialize = function(provider) {
     web3 = new Web3(provider);
     eth = web3.eth;
-    squiggleIds = [];
-    squiggleValues = [];
-    accs = [];
-    ethBalance = [];
-    squiggles = [];
     contractLoaded = false;
     setDefaultAccountIndex(0);
     loadSquiggleTokenContract(function(e, contract) {
@@ -278,11 +277,12 @@ var initialize = function(provider) {
         setAccountToAddress(squiggleContractOwner);
     });
     btnTransfer.addEventListener('click', function() {
-        var accountToTransferTo = accountToTransfer.value;
+        var accountToTransfer = document.getElementById('transfer-account');
+        var account = accountToTransfer.value;
         var idToTransfer = document.getElementById('transfer-id')
         var id = idToTransfer.value;
 
-        squiggleToken.transfer(accountToTransferTo, id, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 967000}, function(err, res) {
+        squiggleToken.transfer(account, id, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 967000}, function(err, res) {
             if (!err) {
                 accountToTransfer.value = '';
                 idToTransfer.value = '';
