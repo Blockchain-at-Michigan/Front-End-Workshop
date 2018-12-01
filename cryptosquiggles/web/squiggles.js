@@ -293,13 +293,16 @@ var initialize = function(provider) {
         });
     });
     btnCreateSquiggle.addEventListener('click', function() {
-        squiggleToken.createRandomSquiggle(inputCreateAddress.value, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 257637}, function(err, res) {
+        var account = inputCreateAddress.value;
+        squiggleToken.createRandomSquiggle(account, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 257637}, function(err, res) {
             if (!err) {
-                if (inputCreateAddress.value === defaultAccount) {
+                if (account === defaultAccount) {
                     updateAccounts(true);
                 } else {
                     alert('Squiggle Created!');
-                    updateAccounts(false);
+                    if (web3.eth.accounts.includes(account)) {
+                        updateAccounts(false);
+                    }
                 }
             } else {
                 console.log(err);
