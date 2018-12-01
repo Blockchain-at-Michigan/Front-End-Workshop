@@ -4,6 +4,7 @@
 
 #accounts-list td {
     padding-right: 8px;
+    cursor: pointer;
 }
 
 #btnUpdate {

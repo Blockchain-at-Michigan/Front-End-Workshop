@@ -244,7 +244,7 @@ var initializeUI = function() {
         squiggles[currIndex].className = 'balance-output';
         squiggles[currIndex].id = `account-output-${currIndex}`;
         squiggles[currIndex].addEventListener('click', function() {
-            setAccountToAddress(squiggles[currIndex].innerText);
+            setAccountToAddress(accs[currIndex].innerText);
         });
         rowDiv.appendChild(accs[i]);
         rowDiv.appendChild(ethBalance[i]);
