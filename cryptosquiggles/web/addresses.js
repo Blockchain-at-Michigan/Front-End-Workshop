@@ -12,8 +12,8 @@ var getERC721Abi = function() {
 };
 
 var getERC20Address = function() {
-    // TODO: update this with the correct squiggle token address
-    return '0x1ea3e92e90ba51e306b0cf4ec05793683a8795ef';
+    // TODO: update this with the correct trinket token address
+    return '0x4bb2ed1de75d97fd443768135a0f7399683c807c';
 };
 
 var getERC20Abi = function() {
