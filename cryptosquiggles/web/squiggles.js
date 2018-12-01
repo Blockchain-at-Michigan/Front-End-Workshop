@@ -284,7 +284,7 @@ var initializeUI = function() {
         trinkets[currIndex].className = 'trinket-balance';
         trinkets[currIndex].id = `trinket-balance-${currIndex}`;
         trinkets[currIndex].addEventListener('click', function() {
-            setAccountToAddress(trinkets[currIndex].innerText);
+            setAccountToAddress(accs[currIndex].innerText);
         });
         rowDiv.appendChild(accs[i]);
         rowDiv.appendChild(ethBalance[i]);
