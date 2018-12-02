@@ -14,7 +14,7 @@ Today's event link! https://www.facebook.com/events/291510058141385/
 
 **Connection to the Physical World**: How can you design a connection between tokens and physical objects such that this connection is enforced and maintained when the physical item or token change possession?
 
-## helpful-links
+## Helpful Links
 
 * [Javascript](https://www.w3schools.com/js/default.asp)
 
