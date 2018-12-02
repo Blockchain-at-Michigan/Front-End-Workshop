@@ -12,8 +12,6 @@ Today's event link! https://www.facebook.com/events/291510058141385/
 
 **CryptoInsurance**: How might we assist citizens of nations with weak currency or unstable governments secure their money and avoid catastrophic risk? e.g., Venezuela
 
-**Social Impact**: Think about ways you could use a token to incentivize a positive social impact?
-
 **Connection to the Physical World**: How can you design a connection between tokens and physical objects such that this connection is enforced and maintained when the physical item or token change possession?
 
 ## helpful-links
