@@ -1,10 +1,10 @@
 var getGanacheAddress = function() {
-    return 'http://localhost:7545';
+    return 'http://35.2.218.114:7545';
 }
 
 var getERC721Address = function() {
     // TODO: update this with the correct squiggle token address
-    return '0x452b9e767410dfa8cf620b182d9f763f745000c2';
+    return '0x7b1bd87fc5462ae90a0245f7c6f876461c9797dd';
 };
 
 var getERC721Abi = function() {
