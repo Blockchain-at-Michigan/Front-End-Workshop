@@ -2,10 +2,13 @@
 
 Some prompts to get the thoughts flowing!
 
-Gaming: How can you use a digital collectible to create a fun and engaging gaming experience for a user?
+Today's event link! https://www.facebook.com/events/291510058141385/
 
-A Brief History of… Everything: How might we track changes to publicly-available text over time? Examples include headlines from major newspapers and big tech company terms of service.
+**Gaming**: How can you use a digital collectible to create a fun and engaging gaming experience for a user?
 
-Jordan Peele is Not Obama: Fake videos are getting scary real; give it two years and they will be indistinguishable from reality. How might we use blockchain technology (i.e., hashing, distributed and immutable ledgers) to authenticate that videos were filmed in the real world, as opposed to created (or heavily edited) digitally?
+**A Brief History of… Everything**: How might we track changes to publicly-available text over time? Examples include headlines from major newspapers and big tech company terms of service.
 
-CryptoInsurance: How might we assist citizens of nations with weak currency or unstable governments secure their money and avoid catastrophic risk? e.g., Venezuela
+**Jordan Peele is Not Obama**: Fake videos are getting scary real; give it two years and they will be indistinguishable from reality. How might we use blockchain technology (i.e., hashing, distributed and immutable ledgers) to authenticate that videos were filmed in the real world, as opposed to created (or heavily edited) digitally?
+
+**CryptoInsurance**: How might we assist citizens of nations with weak currency or unstable governments secure their money and avoid catastrophic risk? e.g., Venezuela
+
