@@ -13,7 +13,7 @@ var getERC721Abi = function() {
 
 var getERC20Address = function() {
     // TODO: update this with the correct trinket token address
-    return '0x4bb2ed1de75d97fd443768135a0f7399683c807c';
+    return '0xed32b04879471b8d435bd14e69cecee1f696e4c0';
 };
 
 var getERC20Abi = function() {
