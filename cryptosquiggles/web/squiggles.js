@@ -5,6 +5,7 @@ var squiggleValues;
 var accs;
 var ethBalance;
 var squiggles;
+var trinkets;
 var decimalsFactor = 1000000000000000000;
 
 var spanCurrAccountAddress = document.getElementById('curr-account');
@@ -19,13 +20,16 @@ var btnOwner = document.getElementById('btnOwner');
 var btnTransfer = document.getElementById('btnTransfer');
 var btnCreateSquiggle = document.getElementById('btnCreateSquiggle');
 var currAccountDiv = document.getElementById('curr-account-div');
+var btnTransferTrinkets = document.getElementById('btnTransferTrinkets');
 
+var trinketTokenContract;
+var trinketToken;
 var squiggleTokenContract;
 var squiggleToken;
 var squiggleContractOwner;
 var defaultAccountIndex;
 var defaultAccount;
-var contractLoaded;
+var contractsLoaded;
 var selectedSquiggle;
 
 var chooseSquiggle = function(index) {
@@ -43,19 +47,6 @@ var chooseSquiggle = function(index) {
     }
 };
 
-var getSquiggleBalance = function(account) {
-    return new Promise(function(resolve, reject) {
-        squiggleToken.balanceOf(account, function(err, bal) {
-            if (!err) {
-                resolve(bal);
-            } else {
-                console.log(err);
-                reject(err);
-            }
-        });
-    });
-};
-
 var getEthBalance = function(account) {
     return new Promise(function(resolve, reject) {
         eth.getBalance(account, function(err, bal) {
@@ -69,24 +60,56 @@ var getEthBalance = function(account) {
     });
 };
 
+var getSquiggleBalance = function(account) {
+    return new Promise(function(resolve, reject) {
+        squiggleToken.balanceOf(account, function(err, bal) {
+            if (!err) {
+                resolve(bal);
+            } else {
+                console.log(err);
+                reject(err);
+            }
+        });
+    });
+};
+
+var getTrinketBalance = function(account) {
+    return new Promise(function(resolve, reject) {
+        trinketToken.balanceOf(account, function(err, bal) {
+            if (!err) {
+                resolve(bal);
+            } else {
+                console.log(err);
+                reject(err);
+            }
+        });
+    });
+};
+
 var updateAccounts = async function(selectLastSquiggle) {
     for (var i = 0; i < eth.accounts.length; ++i) {
         var acctSpan = document.getElementById(`account-${i}`);
-        var outputSpan = document.getElementById(`account-output-${i}`);
         var ethBalanceSpan = document.getElementById(`eth-balance-${i}`);
+        var squiggleBalanceSpan = document.getElementById(`account-output-${i}`);
+        var trinketBalanceSpan = document.getElementById(`trinket-balance-${i}`);
         var currAccount = eth.accounts[i];
-        var bal = await getSquiggleBalance(currAccount);
-        if (currAccount === squiggleContractOwner) {
-            outputSpan.innerText = `Owner Squiggles: ${bal}`;
-        } else {
-            outputSpan.innerText = `Squiggles: ${bal}`;
-        }
         var ethBal = await getEthBalance(currAccount);
-        ethBalanceSpan.innerText = ethBal.dividedBy(1000000000000000000).toString(10);
+        ethBalanceSpan.innerText = ethBal.dividedBy(decimalsFactor).toString(10);
+
+        var squiggleBalance = await getSquiggleBalance(currAccount);
+        if (currAccount === squiggleContractOwner) {
+            squiggleBalanceSpan.innerText = `Owner Squiggles: ${squiggleBalance}`;
+        } else {
+            squiggleBalanceSpan.innerText = `Squiggles: ${squiggleBalance}`;
+        }
+
+        var trinketBal = await getTrinketBalance(currAccount);
+        trinketBalanceSpan.innerText = trinketBal.dividedBy(decimalsFactor).toString(10);
 
         acctSpan.style.fontWeight = currAccount === defaultAccount ? 'bold' : 'normal';
-        outputSpan.style.fontWeight = currAccount === defaultAccount ? 'bold' : 'normal';
         ethBalanceSpan.style.fontWeight = currAccount === defaultAccount ? 'bold' : 'normal';
+        squiggleBalanceSpan.style.fontWeight = currAccount === defaultAccount ? 'bold' : 'normal';
+        trinketBalanceSpan.style.fontWeight = currAccount === defaultAccount ? 'bold' : 'normal';
     }
 
     if (defaultAccount === squiggleContractOwner) {
@@ -174,7 +197,7 @@ var setDefaultAccountIndex = function(index) {
     initializeUI();
     defaultAccount = web3.eth.accounts[defaultAccountIndex];
     eth.defaultAccount = defaultAccount;
-    if (contractLoaded) {
+    if (contractsLoaded == 2) {
         updateAccounts();
     }
     spanCurrAccountAddress.innerText = defaultAccount;
@@ -190,22 +213,30 @@ var toggleDefaultAccountIndex = function() {
     setDefaultAccountIndex((defaultAccountIndex + 1) % web3.eth.accounts.length);
 };
 
-// Contract function
+// Contract functions
 var loadSquiggleTokenContract = function(callback) {
     var squiggleTokenContract = web3.eth.contract(getERC721Abi());
     squiggleToken = squiggleTokenContract.at(getERC721Address());
     squiggleToken.owner(function(err, res) {
         squiggleContractOwner = res;
         setAccountToAddress(squiggleContractOwner);
-        contractLoaded = true;
+        contractsLoaded++;
         callback(undefined, squiggleToken);
     });
+};
+
+var loadTrinketTokenContract = function(callback) {
+    var trinketTokenContract = web3.eth.contract(getERC20Abi());
+    trinketToken = trinketTokenContract.at(getERC20Address());
+    contractsLoaded++;
+    callback(undefined, trinketToken);
 };
 
 var initializeUI = function() {
     accs = [];
     ethBalance = [];
     squiggles = [];
+    trinkets = [];
     spanCurrAccountAddress.innerText = defaultAccount;
     divAccountsList.innerText = '';
     var headerRowDiv = document.createElement('tr');
@@ -215,9 +246,12 @@ var initializeUI = function() {
     headerDiv2.innerText = 'ETH Balance';
     var headerDiv3 = document.createElement('th');
     headerDiv3.innerText = 'SQGL Balance';
+    var headerDiv4 = document.createElement('th');
+    headerDiv4.innerText = 'TRKT Balance';
     headerRowDiv.appendChild(headerDiv1);
     headerRowDiv.appendChild(headerDiv2);
     headerRowDiv.appendChild(headerDiv3);
+    headerRowDiv.appendChild(headerDiv4);
     divAccountsList.appendChild(headerRowDiv);
     for (var i = 0; i < eth.accounts.length; ++i) {
         const currIndex = i;
@@ -246,9 +280,16 @@ var initializeUI = function() {
         squiggles[currIndex].addEventListener('click', function() {
             setAccountToAddress(accs[currIndex].innerText);
         });
+        trinkets.push(document.createElement('td'));
+        trinkets[currIndex].className = 'trinket-balance';
+        trinkets[currIndex].id = `trinket-balance-${currIndex}`;
+        trinkets[currIndex].addEventListener('click', function() {
+            setAccountToAddress(accs[currIndex].innerText);
+        });
         rowDiv.appendChild(accs[i]);
         rowDiv.appendChild(ethBalance[i]);
         rowDiv.appendChild(squiggles[i]);
+        rowDiv.appendChild(trinkets[i]);
         divAccountsList.appendChild(rowDiv);
     }
 };
@@ -257,14 +298,19 @@ var initializeUI = function() {
 var initialize = function(provider) {
     web3 = new Web3(provider);
     eth = web3.eth;
-    contractLoaded = false;
     setDefaultAccountIndex(0);
-    loadSquiggleTokenContract(function(e, contract) {
+    contractsLoaded = 0;
+    var totalContracts = 2;
+    var contractLoadedCallback = function(e, contract) {
         if (typeof contract.address !== 'undefined') {
-             console.log(`Contract found! address: ${contract.address} transactionHash: ${contract.transactionHash}`);
+            console.log(`Contract found! address: ${contract.address} transactionHash: ${contract.transactionHash}`);
         }
-        updateAccounts();
-    });
+        if (contractsLoaded === totalContracts) {
+            updateAccounts();
+        }
+    };
+    loadSquiggleTokenContract(contractLoadedCallback);
+    loadTrinketTokenContract(contractLoadedCallback);
 
     // Button Click Functions
     btnUpdate.addEventListener('click', function() {
@@ -286,6 +332,22 @@ var initialize = function(provider) {
             if (!err) {
                 accountToTransfer.value = '';
                 idToTransfer.value = '';
+                updateAccounts();
+            } else {
+                console.log(err);
+            }
+        });
+    });
+    btnTransferTrinkets.addEventListener('click', function() {
+        var accountToTransferTrinkets = document.getElementById('transfer-trinket-account');
+        var account = accountToTransferTrinkets.value;
+        var amountToTransfer = document.getElementById('transfer-trinket-amount')
+        var amount = amountToTransfer.value * decimalsFactor;
+
+        trinketToken.transfer(account, amount, { "from": defaultAccount, "gasPrice": 1000000000, "gas": 967000}, function(err, res) {
+            if (!err) {
+                accountToTransferTrinkets.value = '';
+                amountToTransfer.value = '';
                 updateAccounts();
             } else {
                 console.log(err);
