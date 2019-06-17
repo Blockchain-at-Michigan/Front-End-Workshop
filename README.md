@@ -1,4 +1,4 @@
-# front-end-workshop
+# Front End Workshop
 
 Some prompts to get the thoughts flowing!
 
